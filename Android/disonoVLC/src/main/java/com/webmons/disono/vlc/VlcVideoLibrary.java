@@ -116,7 +116,15 @@ public class VlcVideoLibrary implements MediaPlayer.EventListener {
 
     public void play(String endPoint) {
         if (player == null || player.isReleased()) {
-            setMedia(new Media(vlcInstance, Uri.parse(endPoint)));
+            setMedia(new Media(vlcInstance, Uri.parse(endPoint)),null);
+        } else if (!player.isPlaying()) {
+            player.play();
+        }
+    }
+
+    public void play(String endPoint, String[] vlcOptions) {
+        if (player == null || player.isReleased()) {
+            setMedia(new Media(vlcInstance, Uri.parse(endPoint)),vlcOptions);
         } else if (!player.isPlaying()) {
             player.play();
         }
@@ -135,11 +143,26 @@ public class VlcVideoLibrary implements MediaPlayer.EventListener {
         }
     }
 
-    private void setMedia(Media media) {
-        media.addOption(":network-caching=" + Constants.BUFFER);
-        media.addOption(":file-caching=" + Constants.BUFFER);
-        media.addOption(":fullscreen");
+    public void setSize(int width, int height) {
+        if (player != null ) {
+            IVLCVout vlcOut = player.getVLCVout();
+            if (vlcOut != null) {
+                vlcOut.setWindowSize(width, height);
+            }
+        }
+    }
+
+    private void setMedia(Media media,String[] vlcOptions) {
         media.setHWDecoderEnabled(true, false);
+        if (vlcOptions == null) {
+            media.addOption(":network-caching=" + Constants.BUFFER);
+            media.addOption(":file-caching=" + Constants.BUFFER);
+            media.addOption(":fullscreen");
+        } else {
+            for (String option : vlcOptions) {
+                media.addOption(option);
+            }
+        }
 
         player = new MediaPlayer(vlcInstance);
         player.setMedia(media);
