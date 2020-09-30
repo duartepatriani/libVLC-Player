@@ -78,7 +78,11 @@ public class MainActivity extends AppCompatActivity implements VlcListener, View
     @Override
     public void onClick(View v) {
         if (!vlcVideoLibrary.isPlaying()) {
-            vlcVideoLibrary.play("rtsp://wowzaec2demo.streamlock.net/vod/mp4:BigBuckBunny_115k.mov");
+            String[] options = {":network-caching=100"};
+
+            vlcVideoLibrary.play("rtsp://wowzaec2demo.streamlock.net/vod/mp4:BigBuckBunny_115k.mov", options);
+
+            changeSizeAfterSomeSeconds();
         } else {
             vlcVideoLibrary.pause();
         }
@@ -121,6 +125,18 @@ public class MainActivity extends AppCompatActivity implements VlcListener, View
 
         Drawable drawableIcon = getResources().getDrawable(R.drawable.ic_play_arrow_white_24dp);
         bStartStop.setImageDrawable(drawableIcon);
+    }
+
+    private void changeSizeAfterSomeSeconds() {
+        new Timer().schedule(
+                new TimerTask() {
+                    @Override
+                    public void run() {
+                        vlcVideoLibrary.setSize(320,240);
+                    }
+                },
+                30000
+        );
     }
 
     private void _handlerSeekBar() {
